@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+build/
+.kdev4/
+.directory
+
+*.kdev4
