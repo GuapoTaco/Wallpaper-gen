@@ -22,7 +22,9 @@ std::array<float, 3> fromHex(uint32_t color)
 	return fromRGB(color >> 24, color << 8 >> 24, color << 16 >> 24);
 }
 
-GLuint program, vertLocs, vertArray, indicies, colors, numElements;
+GLuint program, vertLocs, vertArray, indicies, colors, numElements, numVerts;
+
+glm::vec3 location = { 3.f, 10.f, 0.f };
 
 void setup()
 {
@@ -35,7 +37,7 @@ void setup()
 	std::string error;
 
 	// load model
-	tinyobj::LoadObj(shapes, mats, error, "G:/home/russellg/projects/Wallpaper/thing.obj");
+	tinyobj::LoadObj(shapes, mats, error, "C:\\Users\\russe\\Documents\\Visual Studio 2015\\Projects\\thing.obj");
 
 	if (!shapes.size())
 	{
@@ -49,6 +51,7 @@ void setup()
 	tinyobj::mesh_t& mesh = shapes[0].mesh;
 
 	numElements = mesh.indices.size();
+	numVerts = mesh.positions.size() / 3;
 
 	//setup buffer
 	glGenVertexArrays(1, &vertArray);
@@ -66,7 +69,7 @@ void setup()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh.indices.size(), mesh.indices.data(), GL_STATIC_DRAW);
 
 
-	std::array<std::array<float, 3>, 8> colorsToChooseFrom =
+	std::array<float, 3> colorsToChooseFrom[] =
 	{
 		fromHex(0xda253900),
 		fromHex(0x377ac800),
@@ -74,8 +77,7 @@ void setup()
 		fromHex(0xe3903100),
 		fromHex(0x7dbe3200),
 		fromHex(0x38579900),
-		fromHex(0x89619e00),
-		fromHex(0x19191900)
+		fromHex(0x89619e00)
 	};
 
 	// generate colors
@@ -84,7 +86,7 @@ void setup()
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
-	std::uniform_int_distribution<> distr(0, colorsToChooseFrom.size() - 1);
+	std::uniform_int_distribution<> distr(0, 6);
 
 	for (std::array<float, 3>& color : colorsData)
 	{
@@ -116,10 +118,11 @@ void setup()
 	auto fragShader =
 		"#version 330 core\n"
 		"in vec3 color;\n"
+		"uniform int isRender = 0;\n"
 		"out vec3 fragColor;\n"
 		"void main()\n"
 		"{\n"
-		"	fragColor = color;\n"
+		"	fragColor = isRender != 0 ? vec3(.1f, .1f, .1f) : color;\n"
 		"}\n";
 
 	// Create the shaders
@@ -190,8 +193,8 @@ void renderAndStuff()
 	glBindVertexArray(vertArray);
 
 	// render!
-	glm::mat4 viewMat = glm::lookAt(glm::vec3{ 0.f, 80.f, 40.f }, { 0.f, 0.f, 0.f }, { 0.f, 0.f, 1.f });
-	glm::mat4 projectionMat = glm::perspective(20.f, 16.f / 9.f, .1f, 300.f);
+	glm::mat4 viewMat = glm::lookAt(location, { 0.f, 0.f, 3.f }, { 0.f, 0.f, 1.f });
+	glm::mat4 projectionMat = glm::perspective(50.f, 16.f / 10.f, .1f, 100.f);
 
 	glm::mat4 MVPMat = projectionMat * viewMat;
 
@@ -210,15 +213,61 @@ void renderAndStuff()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
 
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glUniform1i(glGetUniformLocation(program, "isRender"), GL_FALSE);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicies);
+	glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_INT, nullptr);
+
+	glLineWidth(1000000.f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glUniform1i(glGetUniformLocation(program, "isRender"), GL_TRUE);
+
 	glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_INT, nullptr);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
+	//std::vector<GLubyte> pixels(1920 * 1080 * 4);
+	//glReadPixels(0, 0, 1920, 1080, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+	//auto err = lodepng::encode("C:\\Users\\russe\\Documents\\Visual Studio 2015\\Projects\\WallPaperout.png", pixels, 1920, 1080, LCT_RGBA);
+	//std::cout << lodepng_error_text(err) << std::endl;
+
 }
 
+void regenerate()
+{
+	std::array<float, 3> colorsToChooseFrom[] =
+	{
+		fromHex(0xda253900),
+		fromHex(0x377ac800),
+		fromHex(0x5d3da300),
+		fromHex(0xe3903100),
+		fromHex(0x7dbe3200),
+		fromHex(0x38579900),
+		fromHex(0x89619e00)
+	};
+
+	// generate colors
+	std::vector<std::array<float, 3>>  colorsData(numVerts);
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	std::uniform_int_distribution<> distr(0, 6);
+
+	for (std::array<float, 3>& color : colorsData)
+	{
+
+		color = colorsToChooseFrom[distr(gen)];
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, colors);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 3 * numVerts, colorsData.data());
+
+}
 
 int main()
 {
@@ -226,8 +275,11 @@ int main()
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_DECORATED, GL_FALSE);
 
-	auto window = glfwCreateWindow(1920, 1080, "Wallpaper", nullptr, nullptr);
+	glfwWindowHint(GLFW_SAMPLES, 8);
+
+	auto window = glfwCreateWindow(1680, 1050, "Wallpaper", nullptr, nullptr);
 	assert(window);
 
 	glfwMakeContextCurrent(window);
@@ -238,15 +290,50 @@ int main()
 
 	setup();
 
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+
 	while (!glfwWindowShouldClose(window))
 	{
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		if (glfwGetKey(window, GLFW_KEY_SPACE))
+		{
+			regenerate();
+		}
+
+		constexpr float speed = .01f;
+		if (glfwGetKey(window, GLFW_KEY_RIGHT))
+		{
+			location.x += speed;
+		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT))
+		{
+			location.x -= speed;
+		}
+		if (glfwGetKey(window, GLFW_KEY_UP))
+		{
+			location.z -= speed;
+		}
+		if (glfwGetKey(window, GLFW_KEY_DOWN))
+		{
+			location.z += speed;
+		}
+
+		if (glfwGetKey(window, GLFW_KEY_PAGE_UP))
+		{
+			location.y += speed;
+		}
+		if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN))
+		{
+			location.y -= speed;
+		}
 
 		renderAndStuff();
 
 		glfwPollEvents();
 		glfwSwapBuffers(window);
+
 	}
+
 
 
 }
