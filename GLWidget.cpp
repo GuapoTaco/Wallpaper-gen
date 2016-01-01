@@ -93,6 +93,13 @@ void GLWidget::markForRegeneration()
 	needsRegenerate = true;
 }
 
+void GLWidget::markForSave(const QString& saveDest)
+{
+	needsSave = true;
+	savePath = saveDest;
+}
+
+
 
 
 std::array<float, 3> fromHex(uint32_t color)
@@ -196,10 +203,10 @@ void GLWidget::initializeGL()
 		fromHex(0xda253900),
 		fromHex(0x377ac800),
 		fromHex(0x5d3da300),
-		fromHex(0xe3903100),
-		fromHex(0x7dbe3200),
-		fromHex(0x38579900),
-		fromHex(0x89619e00)
+	//	fromHex(0xe3903100),
+	//	fromHex(0x7dbe3200),
+	//	fromHex(0x38579900),
+	//	fromHex(0x89619e00)
 	};
 
 	// generate colors
@@ -208,7 +215,7 @@ void GLWidget::initializeGL()
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
-	std::uniform_int_distribution<> distr(0, 6);
+	std::uniform_int_distribution<> distr(0, 2);
 
 	for (std::array<float, 3>& color : colorsData)
 	{
@@ -381,7 +388,8 @@ void GLWidget::paintGL()
 	//auto err = lodepng::encode("C:\\Users\\russe\\Documents\\Visual Studio 2015\\Projects\\WallPaperout.png", pixels, 1920, 1080, LCT_RGBA);
 	//std::cout << lodepng_error_text(err) << std::endl;
 
-	
+	if(needsSave) save();
+	needsSave = false;
 }
 
 void GLWidget::regenerate()
@@ -391,10 +399,10 @@ void GLWidget::regenerate()
 		fromHex(0xda253900),
 		fromHex(0x377ac800),
 		fromHex(0x5d3da300),
-		fromHex(0xe3903100),
-		fromHex(0x7dbe3200),
-		fromHex(0x38579900),
-		fromHex(0x89619e00)
+	//	fromHex(0xe3903100),
+	//	fromHex(0x7dbe3200),
+	//	fromHex(0x38579900),
+	//	fromHex(0x89619e00)
 	};
 
 	// generate colors
@@ -403,7 +411,7 @@ void GLWidget::regenerate()
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
-	std::uniform_int_distribution<> distr(0, 6);
+	std::uniform_int_distribution<> distr(0, 2);
 
 	for (std::array<float, 3>& color : colorsData)
 	{
@@ -413,5 +421,13 @@ void GLWidget::regenerate()
 
 	glBindBuffer(GL_ARRAY_BUFFER, colors);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 3 * numVerts, colorsData.data());
-
+	
+	
+	
 }
+
+void GLWidget::save()
+{
+	
+}
+

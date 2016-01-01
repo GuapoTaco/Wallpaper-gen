@@ -19,6 +19,7 @@ public:
 	
 	
 	void markForRegeneration();
+	void markForSave(const QString& saveDest);
 	
 	
 	float speed = 30.f;
@@ -32,6 +33,7 @@ private:
 	
 	
 	void regenerate();
+	void save();
 	
 	GLuint program, vertLocs, vertArray, indicies, colors, numElements, numVerts;
 
@@ -43,7 +45,8 @@ private:
 	
 	
 	
-	bool needsRegenerate = false;
+	bool needsRegenerate = false, needsSave = false;
+	QString savePath;
 	
 	QTimer time;
 	std::chrono::time_point<std::chrono::system_clock> lastTickTime;

@@ -32,5 +32,6 @@ public:
 	
 	
 	QPushButton regenerateColors;
+	QPushButton save;
 	
 };

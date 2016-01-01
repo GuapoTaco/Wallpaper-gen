@@ -1,5 +1,6 @@
 #include "Window.h"
 #include <QColorDialog>
+#include <QFileDialog>
 
 Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent, flags ), speedSlider(Qt::Horizontal), sizeSlider(Qt::Horizontal)
 {
@@ -51,6 +52,23 @@ Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent
 	);
 	allColorsLabel.setText(QStringLiteral("Colors:"));
 	
+	save.setText("Save");
+	connect(&save, &QPushButton::clicked, [this]
+		{
+			QFileDialog* dialog = new QFileDialog;
+			
+			dialog->setAcceptMode(QFileDialog::AcceptOpen);
+			
+			dialog->open();
+			
+			connect(dialog, &QFileDialog::fileSelected, [this](const QString& file)
+				{
+					widget.markForSave(file);
+				}
+			);
+		}
+	);
+	
 	
 	layout.addWidget(&widget, 0, 0, 10, 8);
 	
@@ -64,5 +82,6 @@ Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent
 	layout.addWidget(&sizeLabel, 12, 0, 1, 1);
 	layout.addWidget(&sizeSlider, 12, 1, 1, 9);
 	
-	layout.addWidget(&regenerateColors, 13, 0, 1, 10);
+	layout.addWidget(&regenerateColors, 13, 0, 1, 5);
+	layout.addWidget(&save, 13, 5, 1, 5);
 }
