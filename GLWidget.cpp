@@ -1,8 +1,10 @@
 #include "GLWidget.h"
 
 #include "tiny_obj_loader.h"
+#include "lodepng.h"
 
 #include <iostream>
+#include <vector>
 
 #include <glm/gtx/transform.hpp>
 #include <QApplication>
@@ -198,35 +200,12 @@ void GLWidget::initializeGL()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh.indices.size(), mesh.indices.data(), GL_STATIC_DRAW);
 
 
-	std::array<float, 3> colorsToChooseFrom[] =
-	{
-		fromHex(0xda253900),
-		fromHex(0x377ac800),
-		fromHex(0x5d3da300),
-	//	fromHex(0xe3903100),
-	//	fromHex(0x7dbe3200),
-	//	fromHex(0x38579900),
-	//	fromHex(0x89619e00)
-	};
-
-	// generate colors
-	std::vector<std::array<float, 3>>  colorsData(mesh.positions.size() / 3);
-
-	std::random_device rd;
-	std::mt19937 gen(rd());
-
-	std::uniform_int_distribution<> distr(0, 2);
-
-	for (std::array<float, 3>& color : colorsData)
-	{
-
-		color = colorsToChooseFrom[distr(gen)];
-	}
 
 	glGenBuffers(1, &colors);
 	glBindBuffer(GL_ARRAY_BUFFER, colors);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * colorsData.size(), colorsData.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * mesh.positions.size(), 0, GL_STATIC_DRAW);
+	regenerate();
 
 	// load shader
 	auto vertShader =
@@ -382,14 +361,11 @@ void GLWidget::paintGL()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
-	//std::vector<GLubyte> pixels(1920 * 1080 * 4);
-	//glReadPixels(0, 0, 1920, 1080, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-
-	//auto err = lodepng::encode("C:\\Users\\russe\\Documents\\Visual Studio 2015\\Projects\\WallPaperout.png", pixels, 1920, 1080, LCT_RGBA);
-	//std::cout << lodepng_error_text(err) << std::endl;
-
 	if(needsSave) save();
 	needsSave = false;
+	
+	
+//	std::cout << std::hex << glGetError() << std::endl;
 }
 
 void GLWidget::regenerate()
@@ -428,6 +404,15 @@ void GLWidget::regenerate()
 
 void GLWidget::save()
 {
+	std::vector<GLubyte> data(width() * height() * 4);
 	
+	//glReadBuffer(GL_FRONT);
+	//glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+	
+	//lodepng::encode(savePath.toStdString(), data.data(), width(), height(), LCT_RGBA, 8);
+	
+	
+	
+	std::cout  << glGetError() << std::endl;
 }
 
