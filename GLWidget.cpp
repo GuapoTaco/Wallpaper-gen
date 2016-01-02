@@ -174,7 +174,7 @@ void GLWidget::initializeGL()
 	{
 		std::cout << error << std::endl;
 
-		exit(-1);
+        std::cin.get();
 	}
 
 

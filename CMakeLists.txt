@@ -8,7 +8,7 @@ find_package(glm REQUIRED)
 set(CMAKE_AUTOMOC ON)
  
  
-include_directories(${GLM_INCLUDE_DIRECTOREIS})
+include_directories(${GLM_INCLUDE_DIRS})
 
 add_executable(wallpaper-gen GLWidget.cpp Window.cpp main.cpp tiny_obj_loader.cc lodepng.cpp)
  

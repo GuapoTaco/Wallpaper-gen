@@ -2,6 +2,8 @@
 
 #include "Window.h"
 
+#include <iostream>
+
 int main(int argc, char** argv)
 {
 	QApplication app{argc, argv};
@@ -11,6 +13,10 @@ int main(int argc, char** argv)
 	
 	w.show();
 	
-	return app.exec();
+    auto ret = app.exec();
 	
+
+    std::cin.get();
+
+    return ret;
 }
