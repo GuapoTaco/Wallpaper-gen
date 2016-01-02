@@ -3,6 +3,8 @@
 #include "tiny_obj_loader.h"
 #include "lodepng.h"
 
+#include "Window.h"
+
 #include <iostream>
 #include <vector>
 
@@ -10,7 +12,7 @@
 #include <QApplication>
 
 
-GLWidget::GLWidget ( QWidget* parent, Qt::WindowFlags f ) : QOpenGLWidget ( parent, f )
+GLWidget::GLWidget ( Window* parent, Qt::WindowFlags f ) : QOpenGLWidget ( nullptr, f ), owningWindow(parent)
 {
 	
 	setFocusPolicy(Qt::ClickFocus);
@@ -99,6 +101,11 @@ void GLWidget::markForSave(const QString& saveDest)
 {
 	needsSave = true;
 	savePath = saveDest;
+}
+
+void GLWidget::markForColorRefresh()
+{
+	needsColorRefresh = true;
 }
 
 
@@ -320,6 +327,13 @@ void GLWidget::paintGL()
 	if(needsRegenerate) regenerate();
 	needsRegenerate = false;
 	
+	if(needsColorRefresh)
+	{
+		lastSeed--;
+		regenerate();
+		needsColorRefresh = false;
+	}
+	
 	glBindVertexArray(vertArray);
 
 	
@@ -372,24 +386,33 @@ void GLWidget::paintGL()
 
 void GLWidget::regenerate()
 {
-	std::array<float, 3> colorsToChooseFrom[] =
+	// get colors
+	auto& list = owningWindow->allColors;
+	
+	std::vector<std::array<float, 3>> colorsToChooseFrom;
+	
+	for(size_t itemID = 0; itemID < list.count(); ++itemID)
 	{
-		fromHex(0xda253900),
-		fromHex(0x377ac800),
-		fromHex(0x5d3da300),
-	//	fromHex(0xe3903100),
-	//	fromHex(0x7dbe3200),
-	//	fromHex(0x38579900),
-	//	fromHex(0x89619e00)
-	};
+		auto listItem = list.item(itemID);
+		auto color = listItem->backgroundColor();
+		
+		colorsToChooseFrom.emplace_back(fromRGB(color.red(), color.green(), color.blue()));
+	}
+	
+	if(colorsToChooseFrom.size() == 0)
+	{
+		colorsToChooseFrom.push_back({1.f, 1.f, 1.f});
+	}
 
 	// generate colors
 	std::vector<std::array<float, 3>>  colorsData(numVerts);
 
 	std::random_device rd;
 	std::mt19937 gen(rd());
+	
+	gen.seed(++lastSeed);
 
-	std::uniform_int_distribution<> distr(0, 2);
+	std::uniform_int_distribution<> distr(0, colorsToChooseFrom.size() - 1);
 
 	for (std::array<float, 3>& color : colorsData)
 	{

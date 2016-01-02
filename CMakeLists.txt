@@ -7,6 +7,7 @@ find_package(glm REQUIRED)
  
 set(CMAKE_AUTOMOC ON)
  
+set(CMAKE_CXX_FLAGS "-fsanitize=address")
  
 include_directories(${GLM_INCLUDE_DIRS})
 

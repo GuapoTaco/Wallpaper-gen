@@ -1,3 +1,5 @@
+#pragma once
+
 #include <QMainWindow>
 #include <QGridLayout>
 #include <QSlider>
@@ -20,7 +22,6 @@ public:
 	QGridLayout layout;
 	QLabel speedLabel;
 	QSlider speedSlider;
-	GLWidget widget;
 	
 	QSlider sizeSlider;
 	QLabel sizeLabel;
@@ -28,10 +29,12 @@ public:
 	QLabel allColorsLabel;
 	QListWidget allColors;
 	QPushButton newColorButton;
-	std::vector<QListWidgetItem> colorStorage;
+	QPushButton deleteColorButton;
 	
 	
 	QPushButton regenerateColors;
 	QPushButton save;
 	
+	
+	GLWidget widget;
 };

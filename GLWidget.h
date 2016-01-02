@@ -1,3 +1,5 @@
+#pragma once
+
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_3_3_Core>
 #include <QKeyEvent>
@@ -8,10 +10,12 @@
 
 #include <chrono>
 
+class Window;
+
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core
 {
 public:
-	explicit GLWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
+	explicit GLWidget(Window* parent = 0, Qt::WindowFlags f = 0);
 	
 	virtual void initializeGL() override;
 	virtual void paintGL() override;
@@ -19,6 +23,7 @@ public:
 	
 	
 	void markForRegeneration();
+	void markForColorRefresh();
 	void markForSave(const QString& saveDest);
 	
 	
@@ -45,7 +50,7 @@ private:
 	
 	
 	
-	bool needsRegenerate = false, needsSave = false;
+	bool needsRegenerate = false, needsSave = false, needsColorRefresh = false;
 	QString savePath;
 	
 	QTimer time;
@@ -53,5 +58,10 @@ private:
 	
 	bool isMouseDown = false;
 	glm::ivec2 lastMousePos;
+	
+	Window* owningWindow;
+	
+	int lastSeed = 0;
+	
 	
 };

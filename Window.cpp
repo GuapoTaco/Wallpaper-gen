@@ -2,7 +2,9 @@
 #include <QColorDialog>
 #include <QFileDialog>
 
-Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent, flags ), speedSlider(Qt::Horizontal), sizeSlider(Qt::Horizontal)
+#include <iostream>
+
+Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent, flags ), speedSlider(Qt::Horizontal), sizeSlider(Qt::Horizontal), widget(this)
 {
 	setCentralWidget(&windowWidget);
 	windowWidget.setLayout(&layout);
@@ -32,25 +34,55 @@ Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent
 		}
 	);
 	
+	connect(&allColors, &QListWidget::itemDoubleClicked, [this](QListWidgetItem* item)
+		{
+			QColorDialog* dialog = new QColorDialog;
+			dialog->setCurrentColor(item->backgroundColor());
+			dialog->show();
+			
+			connect(dialog, &QColorDialog::currentColorChanged, [this, dialog, item](const QColor& selectedColor)
+				{
+					
+					item->setBackgroundColor(selectedColor);
+					
+					widget.markForColorRefresh();
+				}
+			);
+		}
+	);
+	
 	newColorButton.setText("+");
 	connect(&newColorButton, &QPushButton::clicked, [this]
 		{
 			QColorDialog* dialog = new QColorDialog;
 			dialog->show();
 			
-			connect(dialog, &QColorDialog::colorSelected, [this, dialog]
+			connect(dialog, &QColorDialog::colorSelected, [this, dialog](const QColor& selectedColor)
 				{
 					
-					colorStorage.push_back(QListWidgetItem());
-					auto& item = colorStorage[colorStorage.size() - 1];
-					item.setBackgroundColor(dialog->currentColor());
-					allColors.insertItem(allColors.count() + 1, &item);
+					auto item = new QListWidgetItem();
+					allColors.addItem(item);
+					item->setBackgroundColor(selectedColor);
 					
+					widget.markForRegeneration();
 				}
 			);
 		}
 	);
 	allColorsLabel.setText(QStringLiteral("Colors:"));
+	
+	deleteColorButton.setText("Remove");
+	connect(&deleteColorButton, &QPushButton::clicked, [this]
+		{
+			for(auto elem : allColors.selectedItems())
+			{
+				delete elem;
+				
+				widget.markForRegeneration();
+			}
+		}
+	);
+	
 	
 	save.setText("Save");
 	connect(&save, &QPushButton::clicked, [this]
@@ -76,8 +108,20 @@ Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent
 	
 	layout.addWidget(&widget, 0, 0, 10, 8);
 	
-	layout.addWidget(&allColorsLabel, 0, 8, 1, 1);
-	layout.addWidget(&newColorButton, 0, 9, 1, 1);
+	
+	// header for colors
+	{
+		QWidget* encap = new QWidget();
+		QHBoxLayout* encapLayout = new QHBoxLayout();
+		
+		encap->setLayout(encapLayout);
+		
+		encapLayout->addWidget(&allColorsLabel);
+		encapLayout->addWidget(&newColorButton);
+		encapLayout->addWidget(&deleteColorButton);
+		
+		layout.addWidget(encap, 0, 8, 1, 2);
+	}
 	layout.addWidget(&allColors, 1, 8, 9, 2);
 	
 	layout.addWidget(&speedLabel, 11, 0, 1, 1);
