@@ -6,19 +6,13 @@
 
 Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent, flags ), speedSlider(Qt::Horizontal), sizeSlider(Qt::Horizontal), widget(this)
 {
+	
+	
+	
 	setCentralWidget(&windowWidget);
 	windowWidget.setLayout(&layout);
 	
-	speedSlider.setMinimum(-1);
-	speedSlider.setMaximum(100);
-	speedLabel.setText(QStringLiteral("Speed:"));
-	connect(&speedSlider, &QSlider::valueChanged, [this]
-		{
-			widget.speed = speedSlider.value();
-		}
-	);
-	
-	sizeSlider.setMinimum(0);
+	sizeSlider.setMinimum(-1);
 	sizeSlider.setMaximum(10);
 	sizeLabel.setText(QStringLiteral("Line Size:"));
 	connect(&sizeSlider, &QSlider::valueChanged, [this]
@@ -124,12 +118,25 @@ Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent
 	}
 	layout.addWidget(&allColors, 1, 8, 9, 2);
 	
-	layout.addWidget(&speedLabel, 11, 0, 1, 1);
-	layout.addWidget(&speedSlider, 11, 1, 1, 9);
 	
-	layout.addWidget(&sizeLabel, 12, 0, 1, 1);
-	layout.addWidget(&sizeSlider, 12, 1, 1, 9);
+	layout.addWidget(&sizeLabel, 11, 0, 1, 1);
+	layout.addWidget(&sizeSlider, 11, 1, 1, 9);
 	
-	layout.addWidget(&regenerateColors, 13, 0, 1, 5);
-	layout.addWidget(&save, 13, 5, 1, 5);
+	layout.addWidget(&regenerateColors, 12, 0, 1, 5);
+	layout.addWidget(&save, 12, 5, 1, 5);
 }
+
+void Window::toggleFullscreen()
+{
+	if(isGLFullscreen)
+	{
+		setCentralWidget(&windowWidget);
+		isGLFullscreen = false;
+	}
+	else
+	{
+		setCentralWidget(&widget);
+		isGLFullscreen = true;
+	}
+}
+

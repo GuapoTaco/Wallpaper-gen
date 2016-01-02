@@ -137,6 +137,8 @@ void GLWidget::keyPressEvent ( QKeyEvent* event )
 		velocity.y += speed; break;
 	case Qt::Key_S:
 		velocity.y -= speed; break;
+	case Qt::Key_F: 
+		owningWindow->toggleFullscreen();
 	}
 	
 	
@@ -377,11 +379,9 @@ void GLWidget::paintGL()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 
-	if(needsSave) save();
+	if(needsSave) saveImageOut();
 	needsSave = false;
 	
-	
-//	std::cout << std::hex << glGetError() << std::endl;
 }
 
 void GLWidget::regenerate()
@@ -427,17 +427,26 @@ void GLWidget::regenerate()
 	
 }
 
-void GLWidget::save()
+void GLWidget::saveImageOut()
 {
-	std::vector<GLubyte> data(width() * height() * 4);
-	
-    glReadBuffer(GL_BACK);
-    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
-	
-    lodepng::encode(savePath.toStdString(), data.data(), width(), height(), LCT_RGBA, 8);
 	
 	
+	std::vector<GLubyte> imageData;
+	imageData.resize(width() * height() * 4);
 	
-	std::cout  << glGetError() << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
+	
+	
+    glReadBuffer(GL_FRONT);
+	
+	
+    glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
+	
+	std::cout << (int)imageData[23] << " HEHEHE" << std::endl;
+	
+    lodepng::encode(savePath.toStdString(), imageData, width(), height(), LCT_RGBA, 8);
+	
+	
+	
 }
 

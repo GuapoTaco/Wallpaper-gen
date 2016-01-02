@@ -38,7 +38,9 @@ private:
 	
 	
 	void regenerate();
-	void save();
+	void saveImageOut();
+	
+	
 	
 	GLuint program, vertLocs, vertArray, indicies, colors, numElements, numVerts;
 

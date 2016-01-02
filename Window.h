@@ -35,6 +35,9 @@ public:
 	QPushButton regenerateColors;
 	QPushButton save;
 	
+	bool isGLFullscreen = false;
 	
 	GLWidget widget;
+	
+	void toggleFullscreen();
 };
