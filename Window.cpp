@@ -57,8 +57,12 @@ Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent
 		{
 			QFileDialog* dialog = new QFileDialog;
 			
-			dialog->setAcceptMode(QFileDialog::AcceptOpen);
-			
+            dialog->setAcceptMode(QFileDialog::AcceptSave);
+            dialog->setFilter(QDir::Files | QDir::Writable);
+            dialog->setNameFilter("*.png");
+            dialog->setViewMode(QFileDialog::ViewMode::Detail);
+
+
 			dialog->open();
 			
 			connect(dialog, &QFileDialog::fileSelected, [this](const QString& file)

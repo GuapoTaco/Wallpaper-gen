@@ -331,10 +331,12 @@ void GLWidget::paintGL()
 
 	glm::vec4 a = MVPMat * glm::vec4(-62.8301315, 0.548247993, 51.5535278, 1);
 
-	glUniformMatrix4fv(glGetUniformLocation(program, "MVP"), 1, GL_FALSE, &MVPMat[0][0]);
 
+    glUseProgram(program);
 
-	glUseProgram(program);
+    auto MVPUni = glGetUniformLocation(program, "MVP");
+    glUniformMatrix4fv(MVPUni, 1, GL_FALSE, &MVPMat[0][0]);
+
 	glBindBuffer(GL_ARRAY_BUFFER, vertLocs);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
@@ -406,10 +408,10 @@ void GLWidget::save()
 {
 	std::vector<GLubyte> data(width() * height() * 4);
 	
-	//glReadBuffer(GL_FRONT);
-	//glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+    glReadBuffer(GL_BACK);
+    glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
 	
-	//lodepng::encode(savePath.toStdString(), data.data(), width(), height(), LCT_RGBA, 8);
+    lodepng::encode(savePath.toStdString(), data.data(), width(), height(), LCT_RGBA, 8);
 	
 	
 	
