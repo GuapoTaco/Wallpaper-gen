@@ -32,3 +32,5 @@ build/
 .directory
 
 *.kdev4
+
+test.png
