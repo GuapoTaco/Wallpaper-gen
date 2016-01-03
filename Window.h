@@ -31,6 +31,9 @@ public:
 	QPushButton newColorButton;
 	QPushButton deleteColorButton;
 	
+	QPushButton lineColorChange;
+	QLabel lineColor;
+	
 	
 	QPushButton regenerateColors;
 	QPushButton save;

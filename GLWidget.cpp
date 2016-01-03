@@ -237,9 +237,10 @@ void GLWidget::initializeGL()
 		"in vec3 color;\n"
 		"uniform int isRender = 0;\n"
 		"out vec3 fragColor;\n"
+		"uniform vec3 lineColor;"
 		"void main()\n"
 		"{\n"
-		"	fragColor = isRender != 0 ? vec3(.1f, .1f, .1f) : color;\n"
+		"	fragColor = isRender != 0 ? lineColor : color;\n"
 		"}\n";
 
 	// Create the shaders
@@ -372,6 +373,8 @@ void GLWidget::paintGL()
 	glLineWidth(lineSize);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glUniform1i(glGetUniformLocation(program, "isRender"), GL_TRUE);
+	glm::vec3 lineColorVec3 = {(float)lineColor.red() / 255.f, (float)lineColor.green() / 255.f, (float)lineColor.blue() / 255.f};
+	glUniform3fv(glGetUniformLocation(program, "lineColor"), 1, &lineColorVec3.x);
 
 	if(lineSize != -1.f)	
 		glDrawElements(GL_TRIANGLES, numElements, GL_UNSIGNED_INT, nullptr);

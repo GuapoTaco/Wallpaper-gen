@@ -30,6 +30,8 @@ public:
 	float speed = 30.f;
 	float lineSize = 1.f;
 	
+	QColor lineColor = QColor(0, 0, 0);
+	
 private:
 	
 	virtual void keyPressEvent(QKeyEvent* event) override;

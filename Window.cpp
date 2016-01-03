@@ -99,9 +99,27 @@ Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent
 		}
 	);
 	
+	lineColorChange.setText("Set Line Color");
+	connect(&lineColorChange, &QPushButton::clicked, [this]
+		{
+			QColorDialog* dialog = new QColorDialog;
+			dialog->show();
+			
+			connect(dialog, &QColorDialog::currentColorChanged, [this, dialog](const QColor& selectedColor)
+				{
+					widget.lineColor = selectedColor;
+					
+					QPalette pal;
+					pal.setColor(QPalette::Background, selectedColor);
+					lineColor.setPalette(pal);
+				}
+			);
+		}
+	);
+	lineColor.setAutoFillBackground(true);
+	
 	
 	layout.addWidget(&widget, 0, 0, 10, 8);
-	
 	
 	// header for colors
 	{
@@ -120,7 +138,9 @@ Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent
 	
 	
 	layout.addWidget(&sizeLabel, 11, 0, 1, 1);
-	layout.addWidget(&sizeSlider, 11, 1, 1, 9);
+	layout.addWidget(&sizeSlider, 11, 1, 1, 7);
+	layout.addWidget(&lineColorChange, 11, 8);
+	layout.addWidget(&lineColor, 11, 9);
 	
 	layout.addWidget(&regenerateColors, 12, 0, 1, 5);
 	layout.addWidget(&save, 12, 5, 1, 5);
