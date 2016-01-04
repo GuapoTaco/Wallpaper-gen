@@ -6,9 +6,7 @@
 
 Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent, flags ), speedSlider(Qt::Horizontal), sizeSlider(Qt::Horizontal), widget(this)
 {
-	
-	
-	
+		
 	setCentralWidget(&windowWidget);
 	windowWidget.setLayout(&layout);
 	
@@ -146,17 +144,4 @@ Window::Window ( QWidget* parent, Qt::WindowFlags flags ) : QMainWindow ( parent
 	layout.addWidget(&save, 12, 5, 1, 5);
 }
 
-void Window::toggleFullscreen()
-{
-	if(isGLFullscreen)
-	{
-		setCentralWidget(&windowWidget);
-		isGLFullscreen = false;
-	}
-	else
-	{
-		setCentralWidget(&widget);
-		isGLFullscreen = true;
-	}
-}
 

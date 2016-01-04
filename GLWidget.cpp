@@ -137,8 +137,8 @@ void GLWidget::keyPressEvent ( QKeyEvent* event )
 		velocity.y += speed; break;
 	case Qt::Key_S:
 		velocity.y -= speed; break;
-	case Qt::Key_F: 
-		owningWindow->toggleFullscreen();
+	case Qt::Key_F:
+		owningWindow->setFixedSize(4096, 2304); break;
 	}
 	
 	
@@ -305,7 +305,7 @@ void GLWidget::initializeGL()
 	std::cout << "\tSuccessfully Linked Program.";
 
 	
-	
+	glEnable(GL_DEPTH_TEST);
 }
 
 void GLWidget::paintGL()
@@ -342,7 +342,7 @@ void GLWidget::paintGL()
 	
 	// render!
 	glm::mat4 viewMat = glm::lookAt(location, location + forwardVector, upVector);
-	glm::mat4 projectionMat = glm::perspective(50.f, 16.f / 10.f, .1f, 100.f);
+	glm::mat4 projectionMat = glm::perspective(50.f, (float)width() / height(), .1f, 100.f);
 
 	glm::mat4 MVPMat = projectionMat * viewMat;
 
